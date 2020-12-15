@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>BeepBox Synth Example</title>
+		<meta name="robots" content="noindex, nofollow" />
+	</head>
+	<body>
+		<button onclick="togglePlay()">Play/Pause</button>
+		<p>View page source to see how to play this song from javascript!</p>
+		<script type="text/javascript" src="beepbox_synth.es5.js"></script>
+		<script type="text/javascript">
+			var synth = new beepbox.Synth("5sbk4l00e0ftaa7g0fj7i0r1w1100f0000d1110c0000h0000v2200o3320b4z8Ql6hkpUsiczhkp5hDxN8Od5hAl6u74z8Ql6hkpUsp24ZFzzQ1E39kxIceEtoV8s66138l1S0L1u2139l1H39McyaeOgKA0TxAU213jj0NM4x8i0o0c86ywz7keUtVxQk1E3hi6OEcB8Atl0q0Qmm6eCexg6wd50oczkhO8VcsEeAc26gG3E1q2U406hG3i6jw94ksf8i5Uo0dZY26kHHzxp2gAgM0o4d516ej7uegceGwd0q84czm6yj8Xa0Q1EIIctcvq0Q1EE3ihE8W1OgV8s46Icxk7o24110w0OdgqMOk392OEWhS1ANQQ4toUctBpzRxx1M0WNSk1I3ANMEXwS3I79xSzJ7q6QtEXgw0");
+
+			function togglePlay() {
+				if (synth.isPlayingSong) {
+					synth.pause();
+				} else {
+					synth.play();
+				}
+			}
+		</script>
+
+		<hr>
+		<br>A more complex example below:
+		<br>
+		<br>
+		<button onclick="play_once()">Play Once</button>
+		<button onclick="play_thrice()">Play 3 Loops</button>
+		<button onclick="play_loop()">Play And Loop</button>
+		<button onclick="only_loop()">Loop (no intro)</button>
+		<button onclick="only_outro()">Play Outro Only</button>
+		<br> <br>
+		<button onclick="play()">Play/Resume</button>
+		<button onclick="pause()">Pause</button>
+		<button onclick="stop_looping()">Stop Looping</button>
+		<button onclick="stop()">Stop</button>
+		<br> <br>
+		<button onclick="faster()">Faster!</button>
+		<button onclick="slower()">Slower</button>
+		<button onclick="louder()">Louder!</button>
+		<button onclick="quieter()">Quieter</button>
+		<button onclick="reset()">Reset</button>
+		<br> <br>
+		<button onclick="first_beat()">First Beat</button>
+		<button onclick="three_beats()">First 3 Beats</button>
+		<script type="text/javascript">
+			var synth2 = new beepbox.Synth("8n31s0k0l01e00t2mm0a3g02j07i0r1o3210T0v1L4ua7q3d6f8y4z1C0w0c1h0T1v1L4u34q1d5f7y1z7C0c0AcFhB3V6Q01a5P9939E0000T1v1L4u01q3d1f7y1z2C0c0A1F0B2V1Q31bdPb525E011bT2v1L4u15q0d1f8y0z1C2w0b400g014hp1EFEZaC1wr86W10kQvkB1RmOlRo2CzXAFmjBqaa000");
+			
+			var orig_volume=synth2.volume; //should be 1
+			var orig_tempo=synth2.song.tempo;
+
+			function play_once() {
+				synth2.snapToStart();
+				synth2.loopRepeatCount=0; // # of repetitions after 1st play
+				synth2.play();
+			}
+			function play_thrice() {
+				synth2.snapToStart();
+				synth2.loopRepeatCount=2; // 1 less than # of loops desired
+				//
+				// note: loopRepeatCount gets decremented during play unless
+				// 0 or -1, so if you let it play to the end, it will be set to
+				// 0 at the end. You need to set it every time before playing
+				// from the start, if you want the same number of loops every
+				// time.
+				//
+				synth2.play();
+			}
+			function play_loop() {
+				synth2.snapToStart();
+				synth2.loopRepeatCount=-1; // -1 is infinite
+				synth2.play();
+			}
+			function only_loop() {
+				synth2.goToBar(synth2.song.loopStart); //go to first bar of loop
+				synth2.snapToBar(); //...and then go to start of bar
+				// if you don't snapToBar, it will keep its place relative to the
+				// last bar it was playing
+				synth2.loopRepeatCount=-1; // we want the infinite loop
+				synth2.play();
+			}
+			function only_outro() {
+				synth2.loopRepeatCount=0; // if set to -1, it will loop
+				s=synth2.song
+				synth2.goToBar(s.loopStart+s.loopLength);
+				synth2.snapToBar();
+				synth2.play();
+			}
+			function play() {
+				// This is mainly for unpause.
+				//
+				// If you're starting music that wasn't playing before, normally
+				// you'd be more specific about how you want it to play.
+				//
+				synth2.play();
+			}
+			function pause() {
+				synth2.pause();
+			}
+			function stop_looping() {
+				// Changing loopRepeatCount in the middle of the song works fine,
+				// so this is a good way to stop it from starting another loop.
+				//
+				// This is useful in games to end a song gracefully, flowing
+				// naturally into the outro when you want to switch to another
+				// song and change the mood, but it's not urgent.
+				//
+				synth2.loopRepeatCount=0;
+			}
+			function stop() { // full stop, reset to start with infinite looping
+				synth2.stop();
+				synth2.loopRepeatCount=-1;
+			}
+			function faster() {
+				//
+				// Changing the tempo also works fine while it's playing.
+				//
+				// I use a multiplier here, but only for simplicity. If you're
+				// messing with the tempo during playback, you probably want to
+				// think harder than this about how you change it.
+				//
+				synth2.song.tempo*=1.1;
+			}
+			function slower() {
+				synth2.song.tempo/=1.1;
+			}
+			function louder() {
+				//
+				// If you want to handle the volume better than this, 1.0 is
+				// normal full volume. You can push it higher, and it doesn't
+				// crash, but it will become increasingly distorted.
+				//
+				// Normally you'd want to keep volume between 0 and 1.
+				//
+				// Note: volume is a per-synth setting. You are not adjusting the
+				// volume for all BeepBox synths.
+				//
+				synth2.volume*=1.1;
+			}
+			function quieter() {
+				//
+				// You can also mute it by setting volume to 0.
+				//
+				synth2.volume/=1.1;
+			}
+			function reset() { // reset volume and tempo
+				//
+				// Note: we set orig_tempo as a global up before these functions,
+				// by reading the value we're setting here.
+				//
+				synth2.song.tempo=orig_tempo; 
+				synth2.volume=1; // 1.0 is normal full volume
+			}
+			function first_beat() {
+				synth2.snapToStart();
+				synth2.loopRepeatCount=-1;
+				synth2.beatsToPlay=1;
+				synth2.play();
+			}
+			function three_beats() {
+				synth2.snapToStart();
+				synth2.loopRepeatCount=-1;
+				synth2.beatsToPlay=3;
+				synth2.play();
+			}
+		</script>
+	</body>
+</html>

@@ -22,3 +22,32 @@ npx terser \
 	--compress \
 	--mangle \
 	--mangle-props regex="/^_.+/;"
+
+# Translate beepbox_synth.js to ES5, an older version of Javascript
+npx google-closure-compiler \
+	--js=website/beepbox_synth.js \
+	--js_output_file=website/beepbox_synth.es5.js
+
+# Combine build/synth/SynthBase.js and dependencies into website/beepbox_synthbase.js
+npx rollup build/synth/SynthBase.js \
+	--file website/beepbox_synthbase.js \
+	--format iife \
+	--output.name beepbox \
+	--context exports \
+	--sourcemap \
+	--plugin rollup-plugin-sourcemaps \
+	--plugin @rollup/plugin-node-resolve
+
+# Minify website/beepbox_synthbase.js into website/beepbox_synthbase.min.js
+npx terser \
+	website/beepbox_synthbase.js \
+	--source-map "content='website/beepbox_synthbase.js.map',url=beepbox_synthbase.min.js.map" \
+	-o website/beepbox_synthbase.min.js \
+	--compress \
+	--mangle \
+	--mangle-props regex="/^_.+/;"
+
+# Translate beepbox_synthbase.js to ES5 (for MuJS compatibility)
+npx google-closure-compiler \
+	--js=website/beepbox_synthbase.js \
+	--js_output_file=website/beepbox_synthbase.es5.js
